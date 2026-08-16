@@ -1,0 +1,27 @@
+{
+  "name": "pi-goal-tool",
+  "version": "1.0.0",
+  "description": "Pi Coding Agent 目标管理 + Autopilot 自动推进扩展 (/goal)",
+  "type": "module",
+  "main": "goal.ts",
+  "scripts": {
+    "test": "node test/goal.test.cjs && node test/autopilot.test.cjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "pi",
+    "pi-coding-agent",
+    "extension",
+    "goal",
+    "autopilot"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*",
+    "@mariozechner/pi-tui": "*",
+    "typebox": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}
