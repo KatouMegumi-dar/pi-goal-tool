@@ -130,7 +130,8 @@ if (!jitiEntry) {
 	process.exit(1);
 }
 
-// 解析 pi-tui 与 typebox（新旧包名都试）
+// 解析 pi-tui 与 typebox（新旧包名都试；compile/value 子路径也必须映射，
+// pi 内部（如 theme.js）会 require.resolve("typebox/compile")）
 const piTuiEntry =
 	resolveFromPi(pi, "@mariozechner/pi-tui") || resolveFromPi(pi, "@earendil-works/pi-tui");
 const typeboxEntry =
@@ -139,6 +140,26 @@ const typeboxEntry =
 	(() => {
 		try {
 			return require.resolve("@sinclair/typebox");
+		} catch {
+			return null;
+		}
+	})();
+const typeboxCompileEntry =
+	resolveFromPi(pi, "typebox/compile") ||
+	resolveFromPi(pi, "@sinclair/typebox/compile") ||
+	(() => {
+		try {
+			return require.resolve("typebox/compile");
+		} catch {
+			return null;
+		}
+	})();
+const typeboxValueEntry =
+	resolveFromPi(pi, "typebox/value") ||
+	resolveFromPi(pi, "@sinclair/typebox/value") ||
+	(() => {
+		try {
+			return require.resolve("typebox/value");
 		} catch {
 			return null;
 		}
@@ -162,23 +183,52 @@ const piTui = {
 	})(),
 };
 
+/** 解析 pi-ai 的入口/子路径（新旧包名都试，解析不到返回 null） */
+function resolvePiAi(sub) {
+	return (
+		resolveFromPi(pi, "@earendil-works/pi-ai" + sub) || resolveFromPi(pi, "@mariozechner/pi-ai" + sub) || null
+	);
+}
+
+/** 解析 pi-agent-core 入口（0.67 ~ 0.84 均有，供依赖链使用） */
+function resolvePiAgentCore() {
+	return (
+		resolveFromPi(pi, "@earendil-works/pi-agent-core") ||
+		resolveFromPi(pi, "@mariozechner/pi-agent-core") ||
+		null
+	);
+}
+
 /**
- * 与 pi 扩展加载器相同的 alias 映射（新旧包名 + typebox 双名）。
- * goal.ts 只用到 @mariozechner/pi-coding-agent / @mariozechner/pi-tui / @sinclair/typebox，
- * 这里把两代包名全部映射，保证任意 pi 版本下测试行为一致。
+ * 与 pi 扩展加载器相同的 alias 映射（新旧包名 + typebox 双名 + pi-ai 子路径）。
+ * 注意：jiti 对 alias 值为 undefined 的键会做前缀替换成空串，
+ * 所以只保留解析成功的键。
  */
-const ALIASES = {
-	"@earendil-works/pi-coding-agent": pi.index,
-	"@mariozechner/pi-coding-agent": pi.index,
-	"@earendil-works/pi-tui": piTuiEntry,
-	"@mariozechner/pi-tui": piTuiEntry,
-	"@earendil-works/pi-agent-core": resolveFromPi(pi, "@earendil-works/pi-agent-core"),
-	"@mariozechner/pi-agent-core": resolveFromPi(pi, "@mariozechner/pi-agent-core"),
-	"@earendil-works/pi-ai": resolveFromPi(pi, "@earendil-works/pi-ai"),
-	"@mariozechner/pi-ai": resolveFromPi(pi, "@mariozechner/pi-ai"),
-	typebox: typeboxEntry,
-	"@sinclair/typebox": typeboxEntry,
-};
+const ALIASES = Object.fromEntries(
+	Object.entries({
+		"@earendil-works/pi-coding-agent": pi.index,
+		"@mariozechner/pi-coding-agent": pi.index,
+		"@earendil-works/pi-tui": piTuiEntry,
+		"@mariozechner/pi-tui": piTuiEntry,
+		"@earendil-works/pi-agent-core": resolvePiAgentCore(),
+		"@mariozechner/pi-agent-core": resolvePiAgentCore(),
+		// pi-ai 根映射到 compat（0.80+ 的 loader 行为；旧版自动回退 index）
+		"@earendil-works/pi-ai": resolvePiAi("/compat") || resolvePiAi(""),
+		"@mariozechner/pi-ai": resolvePiAi("/compat") || resolvePiAi(""),
+		"@earendil-works/pi-ai/compat": resolvePiAi("/compat"),
+		"@mariozechner/pi-ai/compat": resolvePiAi("/compat"),
+		"@earendil-works/pi-ai/oauth": resolvePiAi("/oauth"),
+		"@mariozechner/pi-ai/oauth": resolvePiAi("/oauth"),
+		"@earendil-works/pi-ai/providers/all": resolvePiAi("/providers/all"),
+		"@mariozechner/pi-ai/providers/all": resolvePiAi("/providers/all"),
+		typebox: typeboxEntry,
+		"typebox/compile": typeboxCompileEntry,
+		"typebox/value": typeboxValueEntry,
+		"@sinclair/typebox": typeboxEntry,
+		"@sinclair/typebox/compile": typeboxCompileEntry,
+		"@sinclair/typebox/value": typeboxValueEntry,
+	}).filter(([, v]) => !!v),
+);
 
 const { createJiti } = require(jitiEntry);
 const jiti = createJiti(__filename, { alias: ALIASES });
