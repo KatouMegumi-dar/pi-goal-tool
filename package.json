@@ -6,7 +6,10 @@
   "main": "goal.ts",
   "scripts": {
     "test": "node test/goal.test.cjs && node test/autopilot.test.cjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "node scripts/typecheck.mjs",
+    "install:local": "node scripts/install.mjs --local",
+    "setup": "node scripts/install.mjs",
+    "setup:local": "node scripts/install.mjs --local"
   },
   "keywords": [
     "pi",
@@ -17,11 +20,32 @@
   ],
   "license": "MIT",
   "peerDependencies": {
-    "@mariozechner/pi-coding-agent": "*",
-    "@mariozechner/pi-tui": "*",
-    "typebox": "*"
+    "@earendil-works/pi-coding-agent": ">=0.80.0",
+    "@mariozechner/pi-coding-agent": ">=0.67.0",
+    "@earendil-works/pi-tui": ">=0.80.0",
+    "@mariozechner/pi-tui": ">=0.67.0",
+    "@sinclair/typebox": "*"
   },
   "devDependencies": {
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "jiti": "^2.7.0",
+    "@sinclair/typebox": "^0.34.0"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@mariozechner/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    },
+    "@mariozechner/pi-tui": {
+      "optional": true
+    },
+    "@sinclair/typebox": {
+      "optional": true
+    }
   }
 }

@@ -1,6 +1,6 @@
 // /goal 扩展 mock 测试：驱动真实扩展逻辑，验证全部子命令 + 状态恢复 + 上下文注入
-const { createJiti } = require('/root/.local/share/mise/installs/node/24.15.0/lib/node_modules/@mariozechner/pi-coding-agent/node_modules/jiti');
-const jiti = createJiti(__filename, {});
+// 自动定位本机 pi 安装并构建 jiti alias（见 helpers.cjs）
+const { jiti } = require('./helpers.cjs');
 const mod = jiti(require('path').join(__dirname, '..', 'goal.ts'));
 const factory = mod.default;
 

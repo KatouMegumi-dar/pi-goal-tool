@@ -1,6 +1,6 @@
 // autopilot 模式专项测试：自动续跑 / 停止条件 / goal_complete 工具
-const { createJiti } = require('/root/.local/share/mise/installs/node/24.15.0/lib/node_modules/@mariozechner/pi-coding-agent/node_modules/jiti');
-const jiti = createJiti(__filename, {});
+// 自动定位本机 pi 安装并构建 jiti alias（见 helpers.cjs）
+const { jiti } = require('./helpers.cjs');
 const mod = jiti(require('path').join(__dirname, '..', 'goal.ts'));
 const factory = mod.default;
 

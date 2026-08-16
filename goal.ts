@@ -25,7 +25,7 @@
 
 import type { ExtensionAPI, ExtensionContext, Theme } from "@mariozechner/pi-coding-agent";
 import { matchesKey, Text, truncateToWidth } from "@mariozechner/pi-tui";
-import { Type } from "typebox";
+import { Type } from "@sinclair/typebox";
 
 interface Goal {
 	id: number;
@@ -300,7 +300,7 @@ export default function (pi: ExtensionAPI) {
 			autopilot.maxRounds > 0
 				? `🚀 autopilot 开启: 最多 ${autopilot.maxRounds} 轮，目标未完成将持续自动推进`
 				: `🚀 autopilot 开启: 不限轮数，将一直推进到目标全部完成（连续无进展时自动停止）`;
-		ctx?.ui.notify?.(msg, "success");
+		ctx?.ui.notify?.(msg, "info");
 		// 立即触发第一轮
 		await pi.sendUserMessage(buildAutopilotPrompt(), { deliverAs: "followUp" });
 		return msg;
@@ -400,7 +400,7 @@ export default function (pi: ExtensionAPI) {
 		const remaining = remainingGoals();
 		if (remaining.length === 0) {
 			autopilot.enabled = false;
-			ctx.ui.notify("🎉 所有目标已完成，autopilot 结束", "success");
+			ctx.ui.notify("🎉 所有目标已完成，autopilot 结束", "info");
 			return;
 		}
 
@@ -615,7 +615,7 @@ export default function (pi: ExtensionAPI) {
 						return;
 					}
 					const goal = addGoal(text, ctx);
-					if (goal) ctx.ui.notify(`🎯 目标 #${goal.id} 已添加: ${goal.text}`, "success");
+					if (goal) ctx.ui.notify(`🎯 目标 #${goal.id} 已添加: ${goal.text}`, "info");
 					return;
 				}
 
@@ -633,7 +633,7 @@ export default function (pi: ExtensionAPI) {
 							: cmd === "undo"
 								? undoGoal(id, ctx)
 								: removeGoal(id, ctx);
-					ctx.ui.notify(msg, ok ? (cmd === "done" ? "success" : "info") : "error");
+					ctx.ui.notify(msg, ok ? "info" : "error");
 					return;
 				}
 
@@ -664,7 +664,7 @@ export default function (pi: ExtensionAPI) {
 					);
 					return;
 				}
-				ctx.ui.notify(setMission(text, ctx), "success");
+				ctx.ui.notify(setMission(text, ctx), "info");
 				return;
 			}
 
